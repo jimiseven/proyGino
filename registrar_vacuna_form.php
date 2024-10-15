@@ -27,9 +27,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Insertar el registro de la vacuna
     $sql_insert = "INSERT INTO vacunas (tipo_id, dosis, fecha_vacunacion, nino_id)
                    VALUES ($vacuna_id, $dosis, '$fecha_vacunacion', $nino_id)";
-    
+
     if ($conn->query($sql_insert) === TRUE) {
-        $mensaje = "<div class='alert alert-success'>Vacuna registrada exitosamente.</div>";
+        // Redirigir al calendario de vacunas del infante
+        header("Location: calendario_vacunas.php?nino_id=$nino_id");
+        exit();
     } else {
         $mensaje = "<div class='alert alert-danger'>Error al registrar la vacuna: " . $conn->error . "</div>";
     }
@@ -47,6 +49,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">VacMed</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="listar_ninos.php">Listado Niños</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="registro_nino.php">Registro Niños</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="lista_vac.php">Listado Vacunas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="registrar_vacuna.php">Registro Vacunas</a>
+                </li>
+        </div>
+    </nav>
     <div class="container mt-5">
         <h3>Registrar Vacuna para el niño</h3>
 

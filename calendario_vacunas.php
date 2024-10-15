@@ -12,7 +12,8 @@ $nino = $result_nino->fetch_assoc();
 $fecha_nacimiento = $nino['fecha_nacimiento'];
 
 // Función para sumar días a la fecha de nacimiento
-function sumar_dias($fecha, $dias) {
+function sumar_dias($fecha, $dias)
+{
     return date('Y-m-d', strtotime($fecha . " + $dias days"));
 }
 
@@ -39,9 +40,29 @@ while ($row = $result_vacunas_administradas->fetch_assoc()) {
     $vacunas_administradas[$row['tipo_id']][$row['dosis']] = $row['fecha_vacunacion'];
 }
 
+// Aplicar filtro por fecha si se han enviado los filtros
+if (isset($_GET['fecha_inicio']) && isset($_GET['fecha_fin']) && $_GET['fecha_inicio'] != '' && $_GET['fecha_fin'] != '') {
+    $fecha_inicio = $_GET['fecha_inicio'];
+    $fecha_fin = $_GET['fecha_fin'];
+
+    $calendario = array_filter($calendario, function ($evento) use ($fecha_inicio, $fecha_fin) {
+        return $evento['fecha'] >= $fecha_inicio && $evento['fecha'] <= $fecha_fin;
+    });
+}
+
+// Aplicar filtro por tipo de vacuna si se ha enviado el filtro
+if (isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] != '') {
+    $tipo_vacuna = $_GET['tipo_vacuna'];
+
+    $calendario = array_filter($calendario, function ($evento) use ($tipo_vacuna) {
+        return $evento['tipo_id'] == $tipo_vacuna;
+    });
+}
+
 // Ordenar las fechas de manera ascendente
 array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -65,7 +86,8 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
             color: #007bff;
         }
 
-        .calendar-table th, .calendar-table td {
+        .calendar-table th,
+        .calendar-table td {
             padding: 15px;
             text-align: center;
         }
@@ -85,20 +107,83 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
 
         .btn-register {
             margin-top: 10px;
-            float: right;
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: flex-end;
+            /* Alinear todo a la derecha */
+            align-items: center;
+        }
+
+        .filter-form {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .filter-form .col-md-4 {
+            margin-left: 10px;
+        }
+
+        .filter-form button {
+            margin-left: 10px;
+            /* Añade un margen entre el filtro y el botón */
         }
     </style>
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">VacMed</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="listar_ninos.php">Listado Niños</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="registro_nino.php">Registro Niños</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="lista_vac.php">Listado Vacunas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="registrar_vacuna.php">Registro Vacunas</a>
+                </li>
+        </div>
+    </nav>
     <div class="container mt-5 calendar-card">
         <h3>CALENDARIO DE VACUNAS DEL INFANTE</h3>
         <p><strong>Nombre Completo:</strong> <?php echo $nino['nombre'] . " " . $nino['apellido']; ?></p>
-        <p><strong>Edad (Meses):</strong> <?php echo round((strtotime(date('Y-m-d')) - strtotime($fecha_nacimiento)) / (30 * 24 * 60 * 60)); ?></p>
+        <p><strong>Edad (Meses):</strong> <?php echo round((strtotime(date('Y-m-d')) - strtotime($nino['fecha_nacimiento'])) / (30 * 24 * 60 * 60)); ?></p>
 
-        <!-- Botón para registrar vacuna -->
-        <a href="registrar_vacuna_form.php?nino_id=<?php echo $nino_id; ?>" class="btn btn-success btn-register">Registrar Vacuna</a>
+        <!-- Contenedor de filtros y botón de registrar vacuna -->
+        <div class="filter-container">
+            <!-- Botón para registrar vacuna -->
+            <a href="registrar_vacuna_form.php?nino_id=<?php echo $nino_id; ?>" class="btn btn-success btn-register">Registrar Vacuna</a>
 
+            <!-- Formulario de filtros (solo tipo de vacuna) -->
+            <form method="GET" action="calendario_vacunas.php" class="filter-form">
+                <input type="hidden" name="nino_id" value="<?php echo $nino_id; ?>">
+
+                <div class="col-md-4">
+                    <label for="tipo_vacuna" class="form-label">Vacuna:</label>
+                    <select name="tipo_vacuna" class="form-control">
+                        <option value="">Todas</option>
+                        <option value="1" <?php echo isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] == 1 ? 'selected' : ''; ?>>Vacuna A</option>
+                        <option value="2" <?php echo isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] == 2 ? 'selected' : ''; ?>>Vacuna B</option>
+                        <option value="3" <?php echo isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] == 3 ? 'selected' : ''; ?>>Vacuna C</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </form>
+        </div>
+
+        <!-- Tabla de Calendario -->
         <table class="table table-bordered calendar-table mt-4">
             <thead>
                 <tr>
@@ -130,5 +215,6 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
 
 </html>
 
-<?php $conn->close(); ?>
 
+
+<?php $conn->close(); ?>
