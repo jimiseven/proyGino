@@ -51,6 +51,7 @@ $result = $conn->query($sql);
                         <th>Nombre</th>
                         <th>Apellido</th>
                         <th>Fecha de Nacimiento</th>
+                        <th>Acciones</th> <!-- Nueva columna para las acciones -->
                     </tr>
                 </thead>
                 <tbody>
@@ -62,6 +63,7 @@ $result = $conn->query($sql);
                         echo "<td>" . $row["nombre"] . "</td>";
                         echo "<td>" . $row["apellido"] . "</td>";
                         echo "<td>" . $row["fecha_nacimiento"] . "</td>";
+                        echo "<td><a href='ver_vacunas.php?nino_id=" . $row['id'] . "' class='btn btn-info'>Ver Vacunas</a></td>"; // Enlace para ver las vacunas
                         echo "</tr>";
                     }
                     ?>
