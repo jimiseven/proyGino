@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-10-2024 a las 03:27:59
+-- Tiempo de generación: 15-10-2024 a las 12:48:53
 -- Versión del servidor: 10.4.20-MariaDB
 -- Versión de PHP: 8.0.9
 
@@ -20,6 +20,29 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `bc_vac`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ninos`
+--
+
+CREATE TABLE `ninos` (
+  `id` bigint(20) NOT NULL,
+  `nombre` varchar(255) NOT NULL,
+  `apellido` varchar(255) NOT NULL,
+  `fecha_nacimiento` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Volcado de datos para la tabla `ninos`
+--
+
+INSERT INTO `ninos` (`id`, `nombre`, `apellido`, `fecha_nacimiento`) VALUES
+(1, 'Juan', 'Pérez', '2020-01-15'),
+(2, 'María', 'Gómez', '2021-05-22'),
+(3, 'Carlos', 'López', '2019-11-30'),
+(4, 'user', 'userName', '2024-10-01');
 
 -- --------------------------------------------------------
 
@@ -59,6 +82,12 @@ INSERT INTO `vacunas` (`id`, `tipo`, `dosis`, `fecha_vacunacion`, `nino_id`) VAL
 --
 
 --
+-- Indices de la tabla `ninos`
+--
+ALTER TABLE `ninos`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indices de la tabla `vacunas`
 --
 ALTER TABLE `vacunas`
@@ -68,6 +97,12 @@ ALTER TABLE `vacunas`
 --
 -- AUTO_INCREMENT de las tablas volcadas
 --
+
+--
+-- AUTO_INCREMENT de la tabla `ninos`
+--
+ALTER TABLE `ninos`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `vacunas`

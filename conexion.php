@@ -1,21 +1,21 @@
 <?php
 // Datos de conexión
-$host = 'localhost';  // Servidor de la base de datos (puede cambiarse si es necesario)
-$dbname = 'bc_vac';   // Nombre de la base de datos
-$username = 'root';   // Usuario de la base de datos
-$password = '';       // Contraseña del usuario
+$servername = "localhost"; // Cambia a tu servidor si es necesario
+$username = "root"; // Cambia al nombre de usuario de tu base de datos
+$password = ""; // Cambia a la contraseña de tu base de datos
+$dbname = "bc_vac"; // Nombre de la base de datos
 
-try {
-    // Crear una nueva instancia de PDO para conectarse a la base de datos MySQL
-    $conexion = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    
-    // Configurar PDO para lanzar excepciones en caso de error
-    $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+// Crear la conexión
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-    echo "Conexión exitosa a la base de datos";
-    
-} catch (PDOException $e) {
-    // Si ocurre un error, lo capturamos y mostramos un mensaje
-    echo "Error de conexión: " . $e->getMessage();
+// Verificar la conexión
+if ($conn->connect_error) {
+    die("Conexión fallida: " . $conn->connect_error);
 }
+
+// Configuración correcta
+echo "Conexión exitosa a la base de datos.";
+
+// Puedes cerrar la conexión cuando no la necesites más
+// $conn->close();
 ?>
