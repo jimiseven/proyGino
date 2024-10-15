@@ -8,11 +8,13 @@ $nombre_nino = "";
 $tipo_vacuna = "";
 $fecha_vacunacion = "";
 $dosis_nueva = 0;
+$nombre_personal = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nino_id = $_POST['nino_id'];
     $vacuna_id = $_POST['vacuna_id'];
     $fecha_vacunacion = $_POST['fecha_vacunacion'];
+    $personal_id = $_POST['personal_id']; // Recibir el ID del personal
 
     // Obtener el nombre del niño
     $sql_nino = "SELECT nombre, apellido FROM nino WHERE id = $nino_id";
@@ -49,9 +51,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Calcular la próxima dosis
         $dosis_nueva = $dosis_actual + 1;
 
-        // Registrar la vacuna con la dosis correspondiente
-        $sql_insert = "INSERT INTO vacunas (tipo_id, dosis, fecha_vacunacion, nino_id) 
-                       VALUES ($vacuna_id, $dosis_nueva, '$fecha_vacunacion', $nino_id)";
+        // Registrar la vacuna con la dosis correspondiente y el personal
+        $sql_insert = "INSERT INTO vacunas (tipo_id, dosis, fecha_vacunacion, nino_id, personal_id) 
+                       VALUES ($vacuna_id, $dosis_nueva, '$fecha_vacunacion', $nino_id, $personal_id)";
         if ($conn->query($sql_insert) === TRUE) {
             $mensaje = "Vacuna registrada exitosamente.";
         } else {
@@ -59,6 +61,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } else {
         $mensaje = "El niño ya ha recibido todas las dosis requeridas de esta vacuna.";
+    }
+
+    // Obtener el nombre del personal que registró la vacuna
+    $sql_personal = "SELECT nombre, apellido FROM personal WHERE id = $personal_id";
+    $resultado_personal = $conn->query($sql_personal);
+    if ($resultado_personal) {
+        $personal = $resultado_personal->fetch_assoc();
+        $nombre_personal = $personal['nombre'] . ' ' . $personal['apellido'];
     }
 }
 
@@ -69,9 +79,14 @@ $ninos = $conn->query($sql_ninos);
 $sql_vacunas = "SELECT id, tipo FROM vacuna_tipo";
 $vacunas = $conn->query($sql_vacunas);
 
+// Obtener la lista de personal
+$sql_personal = "SELECT id, nombre, apellido FROM personal";
+$personal_list = $conn->query($sql_personal);
+
 // Cerrar la conexión al final, después de todas las consultas
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -103,8 +118,10 @@ $conn->close();
                 <li class="nav-item">
                     <a class="nav-link" href="registrar_vacuna.php">Registro Vacunas</a>
                 </li>
+            </ul>
         </div>
     </nav>
+
     <div class="container mt-5">
         <h2>Registrar Vacuna</h2>
 
@@ -116,6 +133,7 @@ $conn->close();
                     <p><strong>Tipo de vacuna:</strong> <?php echo $tipo_vacuna; ?></p>
                     <p><strong>Número de dosis:</strong> <?php echo $dosis_nueva; ?></p>
                     <p><strong>Fecha de vacunación:</strong> <?php echo $fecha_vacunacion; ?></p>
+                    <p><strong>Registrado por:</strong> <?php echo $nombre_personal; ?></p>
                 <?php } ?>
             </div>
         <?php } ?>
@@ -150,9 +168,23 @@ $conn->close();
                 <input type="date" class="form-control" id="fecha_vacunacion" name="fecha_vacunacion" required>
             </div>
 
+            <div class="mb-3">
+                <label for="personal_id" class="form-label">Personal que registra:</label>
+                <select class="form-control" id="personal_id" name="personal_id" required>
+                    <option value="">Seleccionar personal</option>
+                    <?php while ($row_personal = $personal_list->fetch_assoc()) { ?>
+                        <option value="<?php echo $row_personal['id']; ?>">
+                            <?php echo $row_personal['nombre'] . " " . $row_personal['apellido']; ?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
+
             <button type="submit" class="btn btn-primary">Registrar Vacuna</button>
         </form>
     </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
