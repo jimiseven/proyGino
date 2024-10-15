@@ -12,22 +12,26 @@ $nino = $result_nino->fetch_assoc();
 $fecha_nacimiento = $nino['fecha_nacimiento'];
 
 // Función para sumar días a la fecha de nacimiento
-function sumar_dias($fecha, $dias)
-{
+function sumar_dias($fecha, $dias) {
     return date('Y-m-d', strtotime($fecha . " + $dias days"));
 }
 
-// Definir las fechas de las dosis para las vacunas
+// Definir las fechas de las dosis para las vacunas MMR, Hepatitis B y Polio
 $calendario = [
-    ['fecha' => sumar_dias($fecha_nacimiento, 0),    'vacuna' => 'Vacuna A', 'dosis' => 1, 'tipo_id' => 1],
-    ['fecha' => sumar_dias($fecha_nacimiento, 60),   'vacuna' => 'Vacuna A', 'dosis' => 2, 'tipo_id' => 1],
-    ['fecha' => sumar_dias($fecha_nacimiento, 0),    'vacuna' => 'Vacuna B', 'dosis' => 1, 'tipo_id' => 2],
-    ['fecha' => sumar_dias($fecha_nacimiento, 30),   'vacuna' => 'Vacuna B', 'dosis' => 2, 'tipo_id' => 2],
-    ['fecha' => sumar_dias($fecha_nacimiento, 60),   'vacuna' => 'Vacuna B', 'dosis' => 3, 'tipo_id' => 2],
-    ['fecha' => sumar_dias($fecha_nacimiento, 90),   'vacuna' => 'Vacuna B', 'dosis' => 4, 'tipo_id' => 2],
-    ['fecha' => sumar_dias($fecha_nacimiento, 30),   'vacuna' => 'Vacuna C', 'dosis' => 1, 'tipo_id' => 3],
-    ['fecha' => sumar_dias($fecha_nacimiento, 60),   'vacuna' => 'Vacuna C', 'dosis' => 2, 'tipo_id' => 3],
-    ['fecha' => sumar_dias($fecha_nacimiento, 90),   'vacuna' => 'Vacuna C', 'dosis' => 3, 'tipo_id' => 3]
+    // Vacunas MMR
+    ['fecha' => sumar_dias($fecha_nacimiento, 0),    'vacuna' => 'MMR', 'dosis' => 1, 'tipo_id' => 1],
+    ['fecha' => sumar_dias($fecha_nacimiento, 60),   'vacuna' => 'MMR', 'dosis' => 2, 'tipo_id' => 1],
+
+    // Vacunas Hepatitis B
+    ['fecha' => sumar_dias($fecha_nacimiento, 0),    'vacuna' => 'Hepatitis B', 'dosis' => 1, 'tipo_id' => 2],
+    ['fecha' => sumar_dias($fecha_nacimiento, 30),   'vacuna' => 'Hepatitis B', 'dosis' => 2, 'tipo_id' => 2],
+    ['fecha' => sumar_dias($fecha_nacimiento, 60),   'vacuna' => 'Hepatitis B', 'dosis' => 3, 'tipo_id' => 2],
+    ['fecha' => sumar_dias($fecha_nacimiento, 90),   'vacuna' => 'Hepatitis B', 'dosis' => 4, 'tipo_id' => 2],
+
+    // Vacunas Polio
+    ['fecha' => sumar_dias($fecha_nacimiento, 30),   'vacuna' => 'Polio', 'dosis' => 1, 'tipo_id' => 3],
+    ['fecha' => sumar_dias($fecha_nacimiento, 60),   'vacuna' => 'Polio', 'dosis' => 2, 'tipo_id' => 3],
+    ['fecha' => sumar_dias($fecha_nacimiento, 90),   'vacuna' => 'Polio', 'dosis' => 3, 'tipo_id' => 3]
 ];
 
 // Obtener las vacunas administradas al niño
@@ -62,7 +66,6 @@ if (isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] != '') {
 // Ordenar las fechas de manera ascendente
 array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -112,7 +115,6 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
         .filter-container {
             display: flex;
             justify-content: flex-end;
-            /* Alinear todo a la derecha */
             align-items: center;
         }
 
@@ -128,7 +130,6 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
 
         .filter-form button {
             margin-left: 10px;
-            /* Añade un margen entre el filtro y el botón */
         }
     </style>
 </head>
@@ -153,8 +154,10 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
                 <li class="nav-item">
                     <a class="nav-link" href="registrar_vacuna.php">Registro Vacunas</a>
                 </li>
+            </ul>
         </div>
     </nav>
+
     <div class="container mt-5 calendar-card">
         <h3>CALENDARIO DE VACUNAS DEL INFANTE</h3>
         <p><strong>Nombre Completo:</strong> <?php echo $nino['nombre'] . " " . $nino['apellido']; ?></p>
@@ -173,9 +176,9 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
                     <label for="tipo_vacuna" class="form-label">Vacuna:</label>
                     <select name="tipo_vacuna" class="form-control">
                         <option value="">Todas</option>
-                        <option value="1" <?php echo isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] == 1 ? 'selected' : ''; ?>>Vacuna A</option>
-                        <option value="2" <?php echo isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] == 2 ? 'selected' : ''; ?>>Vacuna B</option>
-                        <option value="3" <?php echo isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] == 3 ? 'selected' : ''; ?>>Vacuna C</option>
+                        <option value="1" <?php echo isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] == 1 ? 'selected' : ''; ?>>MMR</option>
+                        <option value="2" <?php echo isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] == 2 ? 'selected' : ''; ?>>Hepatitis B</option>
+                        <option value="3" <?php echo isset($_GET['tipo_vacuna']) && $_GET['tipo_vacuna'] == 3 ? 'selected' : ''; ?>>Polio</option>
                     </select>
                 </div>
 
@@ -211,10 +214,8 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
             </tbody>
         </table>
     </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
-
-
-
-<?php $conn->close(); ?>

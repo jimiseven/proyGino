@@ -15,6 +15,31 @@ $sql_nino = "SELECT n.nombre, n.apellido, n.sexo, n.fecha_nacimiento,
              WHERE n.id = $nino_id";
 $result_nino = $conn->query($sql_nino);
 $nino = $result_nino->fetch_assoc();
+$fecha_nacimiento = $nino['fecha_nacimiento'];
+
+// Función para sumar días a la fecha de nacimiento
+function sumar_dias($fecha, $dias) {
+    return date('Y-m-d', strtotime($fecha . " + $dias days"));
+}
+
+// Definir las fechas de las dosis para las vacunas MMR, Hepatitis B y Polio
+$calendario = [
+    'MMR' => [
+        ['dosis' => 1, 'fecha' => sumar_dias($fecha_nacimiento, 0)],
+        ['dosis' => 2, 'fecha' => sumar_dias($fecha_nacimiento, 60)]
+    ],
+    'Hepatitis B' => [
+        ['dosis' => 1, 'fecha' => sumar_dias($fecha_nacimiento, 0)],
+        ['dosis' => 2, 'fecha' => sumar_dias($fecha_nacimiento, 30)],
+        ['dosis' => 3, 'fecha' => sumar_dias($fecha_nacimiento, 60)],
+        ['dosis' => 4, 'fecha' => sumar_dias($fecha_nacimiento, 90)]
+    ],
+    'Polio' => [
+        ['dosis' => 1, 'fecha' => sumar_dias($fecha_nacimiento, 30)],
+        ['dosis' => 2, 'fecha' => sumar_dias($fecha_nacimiento, 60)],
+        ['dosis' => 3, 'fecha' => sumar_dias($fecha_nacimiento, 90)]
+    ]
+];
 
 // Obtener las vacunas del niño
 $sql_vacunas = "SELECT vt.tipo, v.dosis, v.fecha_vacunacion FROM vacunas v 
@@ -22,6 +47,13 @@ $sql_vacunas = "SELECT vt.tipo, v.dosis, v.fecha_vacunacion FROM vacunas v
                 WHERE v.nino_id = $nino_id
                 ORDER BY v.tipo_id, v.dosis";
 $result_vacunas = $conn->query($sql_vacunas);
+
+// Agrupar las vacunas administradas para verificar qué dosis ya se ha dado
+$vacunas_administradas = [];
+while ($row = $result_vacunas->fetch_assoc()) {
+    $vacunas_administradas[$row['tipo']][$row['dosis']] = $row['fecha_vacunacion'];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -127,30 +159,24 @@ $result_vacunas = $conn->query($sql_vacunas);
             </thead>
             <tbody>
                 <?php
-                // Crear un array para agrupar las dosis de cada vacuna
-                $vacunas = [];
-                while ($row = $result_vacunas->fetch_assoc()) {
-                    $vacunas[$row['tipo']][] = $row;
-                }
-
                 // Mostrar las vacunas y sus dosis
-                foreach ($vacunas as $tipo_vacuna => $dosis_vacuna) {
+                foreach ($calendario as $vacuna => $dosis_info) {
                     echo "<tr>";
-                    echo "<td>$tipo_vacuna</td>";
+                    echo "<td>$vacuna</td>";
 
-                    // Mostrar hasta 4 dosis (si existen)
-                    for ($i = 1; $i <= 4; $i++) {
-                        $dosis = array_filter($dosis_vacuna, function ($v) use ($i) {
-                            return $v['dosis'] == $i;
-                        });
-
-                        if (!empty($dosis)) {
-                            $dosis = array_values($dosis)[0];
-                            echo "<td>" . date("d-m-Y", strtotime($dosis['fecha_vacunacion'])) . "</td>";
-                        } else {
-                            echo "<td>-</td>";
-                        }
+                    // Mostrar las fechas planificadas de las dosis y si ya fueron administradas
+                    foreach ($dosis_info as $dosis) {
+                        $fecha_sugerida = date("d-m-Y", strtotime($dosis['fecha']));
+                        $estado = isset($vacunas_administradas[$vacuna][$dosis['dosis']]) ? " (Administrada)" : "";
+                        echo "<td>$fecha_sugerida $estado</td>";
                     }
+
+                    // Rellenar las columnas restantes si hay menos de 4 dosis
+                    $dosis_count = count($dosis_info);
+                    for ($i = $dosis_count; $i < 4; $i++) {
+                        echo "<td>-</td>";
+                    }
+
                     echo "</tr>";
                 }
                 ?>
