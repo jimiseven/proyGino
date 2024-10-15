@@ -30,13 +30,13 @@ $calendario = [
 ];
 
 // Obtener las vacunas administradas al niño
-$sql_vacunas_administradas = "SELECT tipo_id, dosis FROM vacunas WHERE nino_id = $nino_id";
+$sql_vacunas_administradas = "SELECT tipo_id, dosis, fecha_vacunacion FROM vacunas WHERE nino_id = $nino_id";
 $result_vacunas_administradas = $conn->query($sql_vacunas_administradas);
 $vacunas_administradas = [];
 
 // Guardar las dosis administradas en un array para verificación
 while ($row = $result_vacunas_administradas->fetch_assoc()) {
-    $vacunas_administradas[$row['tipo_id']][$row['dosis']] = true;
+    $vacunas_administradas[$row['tipo_id']][$row['dosis']] = $row['fecha_vacunacion'];
 }
 
 // Ordenar las fechas de manera ascendente
@@ -82,6 +82,11 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
         .table-border {
             border-bottom: 1px solid #007bff;
         }
+
+        .btn-register {
+            margin-top: 10px;
+            float: right;
+        }
     </style>
 </head>
 
@@ -91,12 +96,16 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
         <p><strong>Nombre Completo:</strong> <?php echo $nino['nombre'] . " " . $nino['apellido']; ?></p>
         <p><strong>Edad (Meses):</strong> <?php echo round((strtotime(date('Y-m-d')) - strtotime($fecha_nacimiento)) / (30 * 24 * 60 * 60)); ?></p>
 
-        <table class="table table-bordered calendar-table">
+        <!-- Botón para registrar vacuna -->
+        <a href="registrar_vacuna_form.php?nino_id=<?php echo $nino_id; ?>" class="btn btn-success btn-register">Registrar Vacuna</a>
+
+        <table class="table table-bordered calendar-table mt-4">
             <thead>
                 <tr>
-                    <th>FECHA</th>
+                    <th>FECHA SUGERIDA</th>
                     <th class="table-border">TAREA</th>
-                    <th class="table-border">ESTADO</th> <!-- Nueva columna para el estado -->
+                    <th class="table-border">ESTADO</th>
+                    <th class="table-border">FECHA DE ADMINISTRACIÓN</th>
                 </tr>
             </thead>
             <tbody>
@@ -104,11 +113,13 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
                 foreach ($calendario as $evento) {
                     $fecha_formateada = date('d \d\e F', strtotime($evento['fecha']));
                     $estado = isset($vacunas_administradas[$evento['tipo_id']][$evento['dosis']]) ? "Administrada" : "Pendiente";
+                    $fecha_administracion = isset($vacunas_administradas[$evento['tipo_id']][$evento['dosis']]) ? date('d \d\e F', strtotime($vacunas_administradas[$evento['tipo_id']][$evento['dosis']])) : "-";
 
                     echo "<tr>";
                     echo "<td>$fecha_formateada</td>";
                     echo "<td>dosis : {$evento['dosis']} - {$evento['vacuna']}</td>";
-                    echo "<td>$estado</td>"; // Mostrar si la vacuna ha sido administrada o no
+                    echo "<td>$estado</td>";
+                    echo "<td>$fecha_administracion</td>";
                     echo "</tr>";
                 }
                 ?>
@@ -120,3 +131,4 @@ array_multisort(array_column($calendario, 'fecha'), SORT_ASC, $calendario);
 </html>
 
 <?php $conn->close(); ?>
+
