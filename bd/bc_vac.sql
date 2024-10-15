@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-10-2024 a las 12:48:53
--- Versión del servidor: 10.4.20-MariaDB
--- Versión de PHP: 8.0.9
+-- Tiempo de generación: 15-10-2024 a las 23:40:15
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,25 +24,28 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `ninos`
+-- Estructura de tabla para la tabla `nino`
 --
 
-CREATE TABLE `ninos` (
+CREATE TABLE `nino` (
   `id` bigint(20) NOT NULL,
-  `nombre` varchar(255) NOT NULL,
-  `apellido` varchar(255) NOT NULL,
+  `nombre` text NOT NULL,
+  `apellido` text NOT NULL,
   `fecha_nacimiento` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `ninos`
+-- Volcado de datos para la tabla `nino`
 --
 
-INSERT INTO `ninos` (`id`, `nombre`, `apellido`, `fecha_nacimiento`) VALUES
-(1, 'Juan', 'Pérez', '2020-01-15'),
-(2, 'María', 'Gómez', '2021-05-22'),
-(3, 'Carlos', 'López', '2019-11-30'),
-(4, 'user', 'userName', '2024-10-01');
+INSERT INTO `nino` (`id`, `nombre`, `apellido`, `fecha_nacimiento`) VALUES
+(1, 'Juan', 'Pérez', '2015-06-15'),
+(2, 'María', 'Gómez', '2016-08-22'),
+(3, 'Carlos', 'López', '2017-11-30'),
+(4, 'pedro', 'mons', '2024-10-02'),
+(5, 'ped', 'mons', '2024-10-03'),
+(6, 'gino', 'torrico', '2024-08-08'),
+(7, 'Camila ', 'Torrico', '2024-08-01');
 
 -- --------------------------------------------------------
 
@@ -52,39 +55,61 @@ INSERT INTO `ninos` (`id`, `nombre`, `apellido`, `fecha_nacimiento`) VALUES
 
 CREATE TABLE `vacunas` (
   `id` bigint(20) NOT NULL,
-  `tipo` enum('A','B','C') NOT NULL,
-  `dosis` int(11) NOT NULL CHECK (`dosis` > 0),
+  `tipo_id` bigint(20) NOT NULL,
+  `dosis` text NOT NULL,
   `fecha_vacunacion` date NOT NULL,
   `nino_id` bigint(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `vacunas`
 --
 
-INSERT INTO `vacunas` (`id`, `tipo`, `dosis`, `fecha_vacunacion`, `nino_id`) VALUES
-(1, 'A', 1, '2020-02-15', 1),
-(2, 'A', 2, '2020-03-15', 1),
-(3, 'A', 3, '2020-04-15', 1),
-(4, 'B', 1, '2020-05-15', 1),
-(5, 'B', 2, '2020-06-15', 1),
-(6, 'C', 1, '2020-07-15', 1),
-(7, 'C', 2, '2020-08-15', 1),
-(8, 'C', 3, '2020-09-15', 1),
-(9, 'C', 4, '2020-10-15', 1),
-(10, 'A', 1, '2021-06-22', 2),
-(11, 'A', 2, '2021-07-22', 2),
-(12, 'B', 1, '2021-08-22', 2),
-(13, 'A', 1, '2024-10-13', 1);
+INSERT INTO `vacunas` (`id`, `tipo_id`, `dosis`, `fecha_vacunacion`, `nino_id`) VALUES
+(1, 1, '1', '2024-10-12', 6),
+(2, 2, '1', '2024-10-12', 6),
+(3, 2, '2', '2024-10-16', 6),
+(4, 2, '3', '2024-10-12', 6),
+(5, 1, '1', '2024-10-01', 4),
+(6, 1, '2', '2024-10-10', 4),
+(7, 3, '1', '2024-10-17', 4),
+(8, 3, '1', '2024-10-17', 6),
+(9, 3, '2', '2024-10-07', 6),
+(10, 2, '4', '2024-10-18', 6),
+(11, 1, '1', '2024-08-02', 7),
+(12, 2, '1', '2024-08-02', 7),
+(13, 1, '2', '2024-10-09', 7),
+(14, 3, '1', '2024-10-16', 7);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `vacuna_tipo`
+--
+
+CREATE TABLE `vacuna_tipo` (
+  `id` bigint(20) NOT NULL,
+  `tipo` text NOT NULL,
+  `dosis_requeridas` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `vacuna_tipo`
+--
+
+INSERT INTO `vacuna_tipo` (`id`, `tipo`, `dosis_requeridas`) VALUES
+(1, 'a', 2),
+(2, 'b', 4),
+(3, 'c', 3);
 
 --
 -- Índices para tablas volcadas
 --
 
 --
--- Indices de la tabla `ninos`
+-- Indices de la tabla `nino`
 --
-ALTER TABLE `ninos`
+ALTER TABLE `nino`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -92,23 +117,37 @@ ALTER TABLE `ninos`
 --
 ALTER TABLE `vacunas`
   ADD PRIMARY KEY (`id`),
+  ADD KEY `tipo_id` (`tipo_id`),
   ADD KEY `nino_id` (`nino_id`);
+
+--
+-- Indices de la tabla `vacuna_tipo`
+--
+ALTER TABLE `vacuna_tipo`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `tipo` (`tipo`) USING HASH;
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
--- AUTO_INCREMENT de la tabla `ninos`
+-- AUTO_INCREMENT de la tabla `nino`
 --
-ALTER TABLE `ninos`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+ALTER TABLE `nino`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `vacunas`
 --
 ALTER TABLE `vacunas`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- AUTO_INCREMENT de la tabla `vacuna_tipo`
+--
+ALTER TABLE `vacuna_tipo`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Restricciones para tablas volcadas
@@ -118,7 +157,8 @@ ALTER TABLE `vacunas`
 -- Filtros para la tabla `vacunas`
 --
 ALTER TABLE `vacunas`
-  ADD CONSTRAINT `vacunas_ibfk_1` FOREIGN KEY (`nino_id`) REFERENCES `ninos` (`id`);
+  ADD CONSTRAINT `vacunas_ibfk_1` FOREIGN KEY (`tipo_id`) REFERENCES `vacuna_tipo` (`id`),
+  ADD CONSTRAINT `vacunas_ibfk_2` FOREIGN KEY (`nino_id`) REFERENCES `nino` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
