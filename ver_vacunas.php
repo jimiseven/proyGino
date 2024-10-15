@@ -5,8 +5,14 @@ include 'conexion.php';
 // Verificar si se ha recibido el ID del niño
 $nino_id = isset($_GET['nino_id']) ? $_GET['nino_id'] : 0;
 
-// Obtener la información del niño
-$sql_nino = "SELECT nombre, apellido, fecha_nacimiento, TIMESTAMPDIFF(MONTH, fecha_nacimiento, CURDATE()) as edad_meses FROM nino WHERE id = $nino_id";
+// Obtener la información del niño y su tutor
+$sql_nino = "SELECT n.nombre, n.apellido, n.sexo, n.fecha_nacimiento, 
+             TIMESTAMPDIFF(MONTH, n.fecha_nacimiento, CURDATE()) as edad_meses,
+             CONCAT(t.nombre, ' ', t.apellidos) as nombre_completo_tutor, 
+             t.carnet_identidad as carnet_tutor, t.relacion as relacion_tutor 
+             FROM nino n
+             JOIN tutor t ON n.id_tutor = t.id
+             WHERE n.id = $nino_id";
 $result_nino = $conn->query($sql_nino);
 $nino = $result_nino->fetch_assoc();
 
@@ -28,27 +34,40 @@ $result_vacunas = $conn->query($sql_vacunas);
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <style>
         .info-card {
-            background-color: #222;
-            color: orange;
+            background-color: #f9f9f9;
+            color: #333;
             padding: 20px;
             border-radius: 10px;
-            border: 2px solid orange;
+            border: 2px solid #007bff;
+            margin-top: 20px;
         }
 
         .info-card h3 {
             text-align: center;
+            color: #007bff;
         }
 
-        .info-card th,
-        .info-card td {
-            color: orange;
-            text-align: center;
-            padding: 10px;
+        .info-card .info-group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-card .info-group div {
+            width: 48%;
         }
 
         .table-header {
             text-align: center;
             font-weight: bold;
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-calendar {
+            margin-top: 15px;
+            display: block;
+            width: 100%;
+            text-align: center;
         }
     </style>
 </head>
@@ -73,16 +92,30 @@ $result_vacunas = $conn->query($sql_vacunas);
                 <li class="nav-item">
                     <a class="nav-link" href="registrar_vacuna.php">Registro Vacunas</a>
                 </li>
+            </ul>
         </div>
     </nav>
-    <div class="container mt-5 info-card">
-        <h3>DATOS DE INFANTE</h3>
-        <p><strong>Nombre Completo:</strong> <?php echo $nino['nombre'] . " " . $nino['apellido']; ?></p>
-        <p><strong>Edad (Meses):</strong> <?php echo $nino['edad_meses']; ?></p>
-        <!-- Botón para ver el calendario de vacunas -->
-        <a href="calendario_vacunas.php?nino_id=<?php echo $nino_id; ?>" class="btn btn-warning btn-calendar">Ver Calendario de Vacunas</a>
 
-        <table class="table table-bordered">
+    <div class="container mt-5 info-card">
+        <h3>DATOS DEL INFANTE</h3>
+        <div class="info-group">
+            <div>
+                <p><strong>Nombre Completo:</strong> <?php echo $nino['nombre'] . " " . $nino['apellido']; ?></p>
+                <p><strong>Sexo:</strong> <?php echo ucfirst($nino['sexo']); ?></p>
+                <p><strong>Edad (Meses):</strong> <?php echo $nino['edad_meses']; ?></p>
+                <p><strong>Fecha de Nacimiento:</strong> <?php echo date("d-m-Y", strtotime($nino['fecha_nacimiento'])); ?></p>
+            </div>
+            <div>
+                <p><strong>Nombre del Tutor:</strong> <?php echo $nino['nombre_completo_tutor']; ?></p>
+                <p><strong>Carnet del Tutor:</strong> <?php echo $nino['carnet_tutor']; ?></p>
+                <p><strong>Relación con el Niño:</strong> <?php echo ucfirst($nino['relacion_tutor']); ?></p>
+            </div>
+        </div>
+
+        <!-- Botón para ver el calendario de vacunas -->
+        <a href="calendario_vacunas.php?nino_id=<?php echo $nino_id; ?>" class="btn btn-primary btn-calendar">Ver Calendario de Vacunas</a>
+
+        <table class="table table-bordered mt-4">
             <thead>
                 <tr>
                     <th class="table-header">Vacuna</th>
@@ -124,6 +157,8 @@ $result_vacunas = $conn->query($sql_vacunas);
             </tbody>
         </table>
     </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
