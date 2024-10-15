@@ -4,12 +4,31 @@ include 'conexion.php';
 
 // Variables para mensajes
 $mensaje = "";
+$nombre_nino = "";
+$tipo_vacuna = "";
+$fecha_vacunacion = "";
+$dosis_nueva = 0;
 
-// Verificar si se ha enviado el formulario
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nino_id = $_POST['nino_id'];
     $vacuna_id = $_POST['vacuna_id'];
     $fecha_vacunacion = $_POST['fecha_vacunacion'];
+
+    // Obtener el nombre del niño
+    $sql_nino = "SELECT nombre, apellido FROM nino WHERE id = $nino_id";
+    $resultado_nino = $conn->query($sql_nino);
+    if ($resultado_nino) {
+        $nino = $resultado_nino->fetch_assoc();
+        $nombre_nino = $nino['nombre'] . ' ' . $nino['apellido'];
+    }
+
+    // Obtener el tipo de vacuna
+    $sql_vacuna = "SELECT tipo FROM vacuna_tipo WHERE id = $vacuna_id";
+    $resultado_vacuna = $conn->query($sql_vacuna);
+    if ($resultado_vacuna) {
+        $vacuna = $resultado_vacuna->fetch_assoc();
+        $tipo_vacuna = $vacuna['tipo'];
+    }
 
     // Verificar cuántas dosis ha recibido el niño de esta vacuna
     $sql_dosis = "SELECT COUNT(*) as dosis_actual FROM vacunas WHERE nino_id = $nino_id AND tipo_id = $vacuna_id";
@@ -34,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sql_insert = "INSERT INTO vacunas (tipo_id, dosis, fecha_vacunacion, nino_id) 
                        VALUES ($vacuna_id, $dosis_nueva, '$fecha_vacunacion', $nino_id)";
         if ($conn->query($sql_insert) === TRUE) {
-            $mensaje = "Vacuna registrada exitosamente. Dosis: $dosis_nueva";
+            $mensaje = "Vacuna registrada exitosamente.";
         } else {
             $mensaje = "Error al registrar la vacuna: " . $conn->error;
         }
@@ -63,11 +82,40 @@ $conn->close();
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">VacMed</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="listar_ninos.php">Listado Niños</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="registro_nino.php">Registro Niños</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="lista_vac.php">Listado Vacunas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="registrar_vacuna.php">Registro Vacunas</a>
+                </li>
+        </div>
+    </nav>
     <div class="container mt-5">
         <h2>Registrar Vacuna</h2>
 
         <?php if (!empty($mensaje)) { ?>
-            <div class="alert alert-info"><?php echo $mensaje; ?></div>
+            <div class="alert alert-info">
+                <?php echo $mensaje; ?>
+                <?php if ($mensaje == "Vacuna registrada exitosamente.") { ?>
+                    <p><strong>Nombre del niño:</strong> <?php echo $nombre_nino; ?></p>
+                    <p><strong>Tipo de vacuna:</strong> <?php echo $tipo_vacuna; ?></p>
+                    <p><strong>Número de dosis:</strong> <?php echo $dosis_nueva; ?></p>
+                    <p><strong>Fecha de vacunación:</strong> <?php echo $fecha_vacunacion; ?></p>
+                <?php } ?>
+            </div>
         <?php } ?>
 
         <form action="registrar_vacuna.php" method="post">

@@ -2,8 +2,13 @@
 // Incluir archivo de conexión
 include 'conexion.php';
 
-// Consulta SQL para obtener los registros de la tabla 'nino'
-$sql = "SELECT id, nombre, apellido, fecha_nacimiento FROM nino";
+// Consulta SQL para obtener los registros de vacunas junto con la información del niño y el tipo de vacuna
+$sql = "SELECT v.id, n.nombre, n.apellido, vt.tipo, v.dosis, v.fecha_vacunacion
+        FROM vacunas v
+        INNER JOIN nino n ON v.nino_id = n.id
+        INNER JOIN vacuna_tipo vt ON v.tipo_id = vt.id
+        ORDER BY v.fecha_vacunacion DESC";
+
 $result = $conn->query($sql);
 ?>
 
@@ -13,7 +18,7 @@ $result = $conn->query($sql);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listado de Niños</title>
+    <title>Listado de Vacunas Registradas</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 
@@ -40,7 +45,7 @@ $result = $conn->query($sql);
         </div>
     </nav>
     <div class="container mt-5">
-        <h2>Listado de Niños Registrados</h2>
+        <h2>Listado de Vacunas Registradas</h2>
 
         <!-- Verificar si hay resultados -->
         <?php if ($result->num_rows > 0) { ?>
@@ -48,9 +53,10 @@ $result = $conn->query($sql);
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Fecha de Nacimiento</th>
+                        <th>Nombre del Niño</th>
+                        <th>Tipo de Vacuna</th>
+                        <th>Número de Dosis</th>
+                        <th>Fecha de Vacunación</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,21 +65,24 @@ $result = $conn->query($sql);
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . $row["id"] . "</td>";
-                        echo "<td>" . $row["nombre"] . "</td>";
-                        echo "<td>" . $row["apellido"] . "</td>";
-                        echo "<td>" . $row["fecha_nacimiento"] . "</td>";
+                        echo "<td>" . $row["nombre"] . " " . $row["apellido"] . "</td>";
+                        echo "<td>" . $row["tipo"] . "</td>";
+                        echo "<td>Dosis " . $row["dosis"] . "</td>";
+                        echo "<td>" . $row["fecha_vacunacion"] . "</td>";
                         echo "</tr>";
                     }
                     ?>
                 </tbody>
             </table>
         <?php } else { ?>
-            <div class="alert alert-info">No hay niños registrados.</div>
+            <div class="alert alert-info">No hay vacunas registradas.</div>
         <?php } ?>
 
         <!-- Cerrar la conexión -->
         <?php $conn->close(); ?>
     </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
