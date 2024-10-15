@@ -2,14 +2,25 @@
 // Incluir archivo de conexión
 include 'conexion.php';
 
-// Consulta SQL para obtener los registros de vacunas junto con la información del niño y el tipo de vacuna
+// Obtener el tipo de vacuna seleccionado del formulario, si existe
+$tipo_seleccionado = isset($_POST['tipo_vacuna']) ? $_POST['tipo_vacuna'] : '';
+
+// Construir la consulta SQL con el filtro si se selecciona un tipo de vacuna
 $sql = "SELECT v.id, n.nombre, n.apellido, vt.tipo, v.dosis, v.fecha_vacunacion
         FROM vacunas v
         INNER JOIN nino n ON v.nino_id = n.id
-        INNER JOIN vacuna_tipo vt ON v.tipo_id = vt.id
-        ORDER BY v.fecha_vacunacion DESC";
+        INNER JOIN vacuna_tipo vt ON v.tipo_id = vt.id";
 
+if ($tipo_seleccionado) {
+    $sql .= " WHERE vt.tipo = '$tipo_seleccionado'";
+}
+
+$sql .= " ORDER BY v.fecha_vacunacion DESC";
 $result = $conn->query($sql);
+
+// Consulta para obtener todos los tipos de vacuna para el filtro
+$sql_tipos = "SELECT DISTINCT tipo FROM vacuna_tipo";
+$result_tipos = $conn->query($sql_tipos);
 ?>
 
 <!DOCTYPE html>
@@ -47,7 +58,25 @@ $result = $conn->query($sql);
     <div class="container mt-5">
         <h2>Listado de Vacunas Registradas</h2>
 
-        <!-- Verificar si hay resultados -->
+        <!-- Formulario de Filtro -->
+        <form method="POST" action="lista_vac.php" class="mb-4">
+            <label for="tipo_vacuna">Filtrar por Tipo de Vacuna:</label>
+            <select name="tipo_vacuna" id="tipo_vacuna" class="form-control">
+                <option value="">Todos</option>
+                <?php
+                // Llenar el select con los tipos de vacunas
+                if ($result_tipos->num_rows > 0) {
+                    while ($row_tipo = $result_tipos->fetch_assoc()) {
+                        $selected = ($row_tipo["tipo"] == $tipo_seleccionado) ? 'selected' : '';
+                        echo "<option value='" . $row_tipo["tipo"] . "' $selected>" . $row_tipo["tipo"] . "</option>";
+                    }
+                }
+                ?>
+            </select>
+            <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
+        </form>
+
+        <!-- Mostrar la Tabla de Resultados -->
         <?php if ($result->num_rows > 0) { ?>
             <table class="table table-striped">
                 <thead>
@@ -61,7 +90,7 @@ $result = $conn->query($sql);
                 </thead>
                 <tbody>
                     <?php
-                    // Recorrer los resultados y mostrarlos en la tabla
+                    $total_vacunas = 0;
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . $row["id"] . "</td>";
@@ -70,10 +99,15 @@ $result = $conn->query($sql);
                         echo "<td>Dosis " . $row["dosis"] . "</td>";
                         echo "<td>" . $row["fecha_vacunacion"] . "</td>";
                         echo "</tr>";
+                        $total_vacunas++;
                     }
                     ?>
                 </tbody>
             </table>
+            <!-- Mostrar el Total de Vacunas -->
+            <div class="alert alert-info">
+                Total de Vacunas: <?php echo $total_vacunas; ?>
+            </div>
         <?php } else { ?>
             <div class="alert alert-info">No hay vacunas registradas.</div>
         <?php } ?>
