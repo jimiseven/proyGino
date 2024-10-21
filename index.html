@@ -15,11 +15,20 @@
     <!-- Script para cargar los datos usando AJAX -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            fetch('get_ninos.php')
-                .then(response => response.json())
+            fetch('getninos.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Error en la respuesta de la red");
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     let tableBody = document.getElementById('ninos-lista');
                     tableBody.innerHTML = '';  // Limpiar la tabla
+
+                    if (data.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No hay niños registrados</td></tr>';
+                    }
 
                     // Recorrer los datos y mostrarlos en la tabla
                     data.forEach(nino => {
@@ -36,6 +45,7 @@
                 .catch(error => {
                     console.error('Error al cargar los datos:', error);
                     document.getElementById('error-message').innerText = 'Error al cargar los datos.';
+                    document.getElementById('error-message').style.display = 'block';
                 });
         });
     </script>
@@ -51,16 +61,16 @@
         <div class="collapse navbar-collapse" id="navbarText">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="listar_ninos.php">Listado Niños</a>
+                    <a class="nav-link" href="#">Listado Niños</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="registro_nino.php">Registro Niños</a>
+                    <a class="nav-link" href="#">Registro Niños</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="lista_vac.php">Listado Vacunas</a>
+                    <a class="nav-link" href="#">Listado Vacunas</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="registrar_vacuna.php">Registro Vacunas</a>
+                    <a class="nav-link" href="#">Registro Vacunas</a>
                 </li>
             </ul>
         </div>
@@ -87,3 +97,4 @@
 </body>
 
 </html>
+

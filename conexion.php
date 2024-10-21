@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 // <<<<<<< HEAD
 // // Datos de conexión
 // $servername = "localhost"; // Cambia a tu servidor si es necesario
@@ -23,6 +24,12 @@ $username = getenv('DB_USER');
 $password = getenv('DB_PASSWORD');
 $dbname = getenv('DB_NAME');
 // >>>>>>> version_1
+=======
+$servername = "localhost"; // Cambia si es necesario
+$username = "root"; // Cambia según tu configuración
+$password = ""; // Debería ser la contraseña correcta para tu base de datos
+$dbname = "bc_vac"; // El nombre de tu base de datos
+>>>>>>> version_1
 
 // Crear la conexión
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -32,9 +39,6 @@ if ($conn->connect_error) {
     die("Conexión fallida: " . $conn->connect_error);
 }
 
-// Configuración correcta
-echo "Conexión exitosa a la base de datos.";
-
-// Puedes cerrar la conexión cuando no la necesites más
-// $conn->close();
+// No debe haber ningún echo aquí para "Conexión exitosa"
+// Solo mantén la conexión abierta
 ?>
