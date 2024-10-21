@@ -1,0 +1,6 @@
+ok ahora 
+ahora deseo adicionar un calendario de vacunas para cada niño 
+este calendario se genera en base a la fecha de nacimiento del niño 
+vacuna MMR (dosis 1 : dia de nacido - dosis 2 : 60 dias despues de nacido)
+vacuna Hepatitis B (dosis 1 : dia de nacido - dosis 2 : 30 dias despues de nacido - dosis 3 : 60 dias despues de nacido - dosis 4 : 90 dias despues de nacido)
+vacuna Polio (dosis 1 : 30 dias despues de nacido - dosis 2 : 60 dias despues de nacido - dosis 3 : 90 dias despues de nacido)

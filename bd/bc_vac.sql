@@ -3,7 +3,11 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
+<<<<<<< HEAD
 -- Tiempo de generación: 15-10-2024 a las 21:18:01
+=======
+-- Tiempo de generación: 15-10-2024 a las 23:40:15
+>>>>>>> version_1
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -77,7 +81,13 @@ INSERT INTO `vacunas` (`id`, `tipo_id`, `dosis`, `fecha_vacunacion`, `nino_id`) 
 (9, 3, '2', '2024-10-07', 6),
 (10, 2, '4', '2024-10-18', 6),
 (11, 1, '1', '2024-08-02', 7),
+<<<<<<< HEAD
 (12, 2, '1', '2024-08-02', 7);
+=======
+(12, 2, '1', '2024-08-02', 7),
+(13, 1, '2', '2024-10-09', 7),
+(14, 3, '1', '2024-10-16', 7);
+>>>>>>> version_1
 
 -- --------------------------------------------------------
 
@@ -139,7 +149,11 @@ ALTER TABLE `nino`
 -- AUTO_INCREMENT de la tabla `vacunas`
 --
 ALTER TABLE `vacunas`
+<<<<<<< HEAD
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+=======
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+>>>>>>> version_1
 
 --
 -- AUTO_INCREMENT de la tabla `vacuna_tipo`
