@@ -1,18 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Listado de Niños</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <!-- JavaScript necesario para Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Script para cargar los datos usando AJAX -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('get_ninos.php')
+                .then(response => response.json())
+                .then(data => {
+                    let tableBody = document.getElementById('ninos-lista');
+                    tableBody.innerHTML = '';  // Limpiar la tabla
+
+                    // Recorrer los datos y mostrarlos en la tabla
+                    data.forEach(nino => {
+                        let row = `<tr>
+                            <td>${nino.id}</td>
+                            <td>${nino.nombre}</td>
+                            <td>${nino.apellido}</td>
+                            <td>${nino.fecha_nacimiento}</td>
+                            <td><a href="ver_vacunas.php?nino_id=${nino.id}" class="btn btn-info">Ver Vacunas</a></td>
+                        </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al cargar los datos:', error);
+                    document.getElementById('error-message').innerText = 'Error al cargar los datos.';
+                });
+        });
+    </script>
 </head>
 
 <body>
@@ -39,6 +65,25 @@
             </ul>
         </div>
     </nav>
+
+    <div class="container mt-5">
+        <h2>Listado de Niños Registrados</h2>
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Fecha de Nacimiento</th>
+                    <th>Acciones</th> <!-- Nueva columna para las acciones -->
+                </tr>
+            </thead>
+            <tbody id="ninos-lista">
+                <!-- Los datos se cargarán aquí con AJAX -->
+            </tbody>
+        </table>
+    </div>
 </body>
 
 </html>
